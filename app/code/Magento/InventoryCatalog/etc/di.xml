@@ -156,4 +156,7 @@
         <plugin name="adapt_verify_stock_to_negative_min_qty"
                 type="Magento\InventoryCatalog\Plugin\CatalogInventory\Model\Spi\StockStateProvider\AdaptVerifyStockToNegativeMinQtyPlugin"/>
     </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="delete_source_items" type="Magento\InventoryCatalog\Plugin\Catalog\Model\ResourceModel\Product\DeleteSourceItemsPlugin"/>
+    </type>
 </config>
