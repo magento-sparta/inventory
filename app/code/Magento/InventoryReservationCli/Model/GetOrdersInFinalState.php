@@ -11,7 +11,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
+use Traversable;
 
 /**
  * Get list of orders in any of the final states (Complete, Closed, Canceled).
@@ -52,17 +52,26 @@ class GetOrdersInFinalState
      * Get list of orders in any of the final states (Complete, Closed, Canceled).
      *
      * @param array $orderIds
-     * @return OrderInterface[]
+     * @param int $bunchSize
+     * @param int $page
+     * @return Traversable|OrderInterface[]
      */
-    public function execute(array $orderIds): array
+    public function execute(array $orderIds, int $bunchSize = 50, int $page = 1): Traversable
     {
         /** @var SearchCriteriaInterface $filter */
         $filter = $this->searchCriteriaBuilder
             ->addFilter('entity_id', $orderIds, 'in')
             ->addFilter('state', $this->getCompleteOrderStatusList->execute(), 'in')
+            ->setPageSize($bunchSize)
+            ->setCurrentPage($page)
             ->create();
 
         $orderSearchResult = $this->orderRepository->getList($filter);
-        return $orderSearchResult->getItems();
+
+        foreach ($orderSearchResult->getItems() as $item) {
+            yield $item->getEntityId() => $item;
+        }
+
+        gc_collect_cycles();
     }
 }
