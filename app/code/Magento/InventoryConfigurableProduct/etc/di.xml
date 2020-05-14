@@ -18,4 +18,7 @@
         <plugin name="get_configurable_option_sku_from_order"
                 type="Magento\InventoryConfigurableProduct\Plugin\Sales\GetSkuFromOrderItem"/>
     </type>
+    <type name="Magento\CatalogInventory\Observer\ParentItemProcessorInterface">
+        <plugin name="adapt_parent_stock_processor" type="Magento\InventoryConfigurableProduct\Plugin\CatalogInventory\Observer\ParentItemProcessor\AdaptParentItemProcessorPlugin"/>
+    </type>
 </config>
