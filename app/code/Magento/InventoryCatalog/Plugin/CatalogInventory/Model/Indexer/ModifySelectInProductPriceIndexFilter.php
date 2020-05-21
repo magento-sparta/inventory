@@ -94,7 +94,8 @@ class ModifySelectInProductPriceIndexFilter
             $select->from(['price_index' => $priceTable->getTableName()], []);
             $priceEntityField = $priceTable->getEntityField();
 
-            if (!$this->isDefaultStock($stock) && $this->resourceConnection->getConnection()->isTableExists($stockTable)) {
+            if (!$this->isDefaultStock($stock)
+                && $this->resourceConnection->getConnection()->isTableExists($stockTable)) {
                 $select->joinInner(
                     ['product_entity' => $this->resourceConnection->getTableName('catalog_product_entity')],
                     "product_entity.entity_id = price_index.{$priceEntityField}",
@@ -105,6 +106,17 @@ class ModifySelectInProductPriceIndexFilter
                     []
                 );
                 $select->where('inventory_stock.is_salable = 0 OR inventory_stock.is_salable IS NULL');
+            } else {
+                $legacyStockTableName = $this->resourceConnection->getTableName('cataloginventory_stock_status');
+                $select->joinLeft(
+                    ['stock_status' => $legacyStockTableName],
+                    sprintf(
+                        'stock_status.product_id = price_index.%s',
+                        $priceEntityField
+                    ),
+                    []
+                );
+                $select->where('stock_status.stock_status = 0 OR stock_status.stock_status IS NULL');
             }
 
             $select->where('price_index.website_id = ?', $websiteId);
@@ -135,5 +147,16 @@ class ModifySelectInProductPriceIndexFilter
         }
 
         return $result;
+    }
+
+    /**
+     * Checks if inventory stock is DB view
+     *
+     * @param StockInterface $stock
+     * @return bool
+     */
+    private function isDefaultStock(StockInterface $stock): bool
+    {
+        return (int)$stock->getStockId() === $this->defaultStockProvider->getId();
     }
 }
