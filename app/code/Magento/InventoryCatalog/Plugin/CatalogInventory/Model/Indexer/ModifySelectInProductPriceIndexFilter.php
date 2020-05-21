@@ -11,6 +11,8 @@ use Magento\Catalog\Model\ResourceModel\Product\Indexer\Price\IndexTableStructur
 use Magento\CatalogInventory\Api\StockConfigurationInterface;
 use Magento\CatalogInventory\Model\Indexer\ProductPriceIndexFilter;
 use Magento\Framework\App\ResourceConnection;
+use Magento\InventoryApi\Api\Data\StockInterface;
+use Magento\InventoryCatalogApi\Api\DefaultStockProviderInterface;
 use Magento\InventoryIndexer\Model\StockIndexTableNameResolverInterface;
 use Magento\InventorySalesApi\Model\StockByWebsiteIdResolverInterface;
 
@@ -40,21 +42,29 @@ class ModifySelectInProductPriceIndexFilter
     private $stockByWebsiteIdResolver;
 
     /**
+     * @var DefaultStockProviderInterface
+     */
+    private $defaultStockProvider;
+
+    /**
      * @param StockIndexTableNameResolverInterface $stockIndexTableNameResolver
      * @param StockConfigurationInterface $stockConfiguration
      * @param ResourceConnection $resourceConnection
      * @param StockByWebsiteIdResolverInterface $stockByWebsiteIdResolver
+     * @param DefaultStockProviderInterface $defaultStockProvider
      */
     public function __construct(
         StockIndexTableNameResolverInterface $stockIndexTableNameResolver,
         StockConfigurationInterface $stockConfiguration,
         ResourceConnection $resourceConnection,
-        StockByWebsiteIdResolverInterface $stockByWebsiteIdResolver
+        StockByWebsiteIdResolverInterface $stockByWebsiteIdResolver,
+        DefaultStockProviderInterface $defaultStockProvider
     ) {
         $this->stockIndexTableNameResolver = $stockIndexTableNameResolver;
         $this->stockConfiguration = $stockConfiguration;
         $this->resourceConnection = $resourceConnection;
         $this->stockByWebsiteIdResolver = $stockByWebsiteIdResolver;
+        $this->defaultStockProvider = $defaultStockProvider;
     }
 
     /**
@@ -84,7 +94,7 @@ class ModifySelectInProductPriceIndexFilter
             $select->from(['price_index' => $priceTable->getTableName()], []);
             $priceEntityField = $priceTable->getEntityField();
 
-            if ($this->resourceConnection->getConnection()->isTableExists($stockTable)) {
+            if (!$this->isDefaultStock($stock) && $this->resourceConnection->getConnection()->isTableExists($stockTable)) {
                 $select->joinInner(
                     ['product_entity' => $this->resourceConnection->getTableName('catalog_product_entity')],
                     "product_entity.entity_id = price_index.{$priceEntityField}",
