@@ -83,8 +83,8 @@ class BackOrderNotifyCustomerCondition implements IsProductSalableForRequestedQt
                 return $this->productSalableResultFactory->create(['errors' => []]);
             }
 
-            $qtyWithReservation = $stockItemData[GetStockItemDataInterface::QUANTITY] +
-                $this->getReservationsQuantity->execute($sku, $stockId);
+            $qtyWithReservation = $stockItemData[GetStockItemDataInterface::QUANTITY]
+                + $this->getReservationsQuantity->execute($sku, $stockId);
             $qtyLeftInStock = $qtyWithReservation - $stockItemConfiguration->getMinQty();
 
             $backOrderQty = $requestedQty - $qtyLeftInStock;
