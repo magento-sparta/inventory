@@ -14,6 +14,7 @@ use Magento\InventorySalesApi\Api\Data\ProductSalableResultInterface;
 use Magento\InventorySalesApi\Api\Data\ProductSalableResultInterfaceFactory;
 use Magento\InventorySalesApi\Api\IsProductSalableForRequestedQtyInterface;
 use Magento\InventorySalesApi\Model\GetStockItemDataInterface;
+use Magento\InventoryReservationsApi\Model\GetReservationsQuantityInterface;
 
 /**
  * @inheritdoc
@@ -41,21 +42,29 @@ class BackOrderNotifyCustomerCondition implements IsProductSalableForRequestedQt
     private $productSalabilityErrorFactory;
 
     /**
+     * @var GetReservationsQuantityInterface
+     */
+    private $getReservationsQuantity;
+
+    /**
      * @param GetStockItemConfigurationInterface $getStockItemConfiguration
      * @param GetStockItemDataInterface $getStockItemData
      * @param ProductSalableResultInterfaceFactory $productSalableResultFactory
      * @param ProductSalabilityErrorInterfaceFactory $productSalabilityErrorFactory
+     * @param GetReservationsQuantityInterface $getReservationsQuantity
      */
     public function __construct(
         GetStockItemConfigurationInterface $getStockItemConfiguration,
         GetStockItemDataInterface $getStockItemData,
         ProductSalableResultInterfaceFactory $productSalableResultFactory,
-        ProductSalabilityErrorInterfaceFactory $productSalabilityErrorFactory
+        ProductSalabilityErrorInterfaceFactory $productSalabilityErrorFactory,
+        GetReservationsQuantityInterface $getReservationsQuantity
     ) {
         $this->getStockItemConfiguration = $getStockItemConfiguration;
         $this->getStockItemData = $getStockItemData;
         $this->productSalableResultFactory = $productSalableResultFactory;
         $this->productSalabilityErrorFactory = $productSalabilityErrorFactory;
+        $this->getReservationsQuantity = $getReservationsQuantity;
     }
 
     /**
@@ -73,7 +82,11 @@ class BackOrderNotifyCustomerCondition implements IsProductSalableForRequestedQt
                 return $this->productSalableResultFactory->create(['errors' => []]);
             }
 
-            $backOrderQty = $requestedQty - $stockItemData[GetStockItemDataInterface::QUANTITY];
+            $qtyWithReservation = $stockItemData[GetStockItemDataInterface::QUANTITY] +
+                $this->getReservationsQuantity->execute($sku, $stockId);
+            $qtyLeftInStock = $qtyWithReservation - $stockItemConfiguration->getMinQty();
+
+            $backOrderQty = $requestedQty - $qtyLeftInStock;
             if ($backOrderQty > 0) {
                 $errors = [
                     $this->productSalabilityErrorFactory->create([
