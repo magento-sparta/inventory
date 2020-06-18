@@ -58,13 +58,14 @@ class BackOrderNotifyCustomerCondition implements IsProductSalableForRequestedQt
         GetStockItemDataInterface $getStockItemData,
         ProductSalableResultInterfaceFactory $productSalableResultFactory,
         ProductSalabilityErrorInterfaceFactory $productSalabilityErrorFactory,
-        GetReservationsQuantityInterface $getReservationsQuantity
+        GetReservationsQuantityInterface $getReservationsQuantity = null
     ) {
         $this->getStockItemConfiguration = $getStockItemConfiguration;
         $this->getStockItemData = $getStockItemData;
         $this->productSalableResultFactory = $productSalableResultFactory;
         $this->productSalabilityErrorFactory = $productSalabilityErrorFactory;
-        $this->getReservationsQuantity = $getReservationsQuantity;
+        $this->getReservationsQuantity = $getReservationsQuantity
+            ?: ObjectManager::getInstance()->get(GetReservationsQuantityInterface::class);
     }
 
     /**
