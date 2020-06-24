@@ -91,7 +91,7 @@ class BackOrderNotifyCustomerCondition implements IsProductSalableForRequestedQt
 
             if ($backOrderQty > 0 && $qtyLeftInStock > 0) {
                 $displayQty = $backOrderQty;
-            } else {
+            } else if ($requestedQty > $qtyLeftInStock) {
                 $displayQty = $requestedQty;
             }
 
