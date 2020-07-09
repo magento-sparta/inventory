@@ -88,11 +88,7 @@ class GetStockItemData implements GetStockItemDataInterface
         }
 
         try {
-            if ($connection->isTableExists($stockItemTableName)) {
-                return $connection->fetchRow($select) ?: null;
-            }
-
-            return null;
+            return $connection->fetchRow($select) ?: null;
         } catch (\Exception $e) {
             throw new LocalizedException(__(
                 'Could not receive Stock Item data'
