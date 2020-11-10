@@ -64,7 +64,7 @@ class GetOrderDataForOrderInFinalState
                 'store.store_id = main_table.store_id',
                 ['store.website_id']
             )
-            ->where('main_table.entity_id IN (?)', $orderIds)
+            ->where($entityIdCondition . ' OR ' . $incrementIdCondition)
             ->where('main_table.state IN (?)', $this->getCompleteOrderStateList->execute());
 
         return $connection->fetchAll($query);
