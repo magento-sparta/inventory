@@ -104,6 +104,10 @@ class SourceDeductionProcessor implements ObserverInterface
             $sourceCode = $this->defaultSourceProvider->getCode();
         }
 
+        if (!isset($sourceCode)) {
+            \Magento\Framework\Debugger::getInstance()->log(__METHOD__, ['shipment_data'=>$shipment->getData()]);
+        }
+
         $shipmentItems = $this->getItemsToDeductFromShipment->execute($shipment);
 
         if (!empty($shipmentItems)) {
