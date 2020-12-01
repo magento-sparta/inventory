@@ -9,6 +9,7 @@ namespace Magento\InventoryConfigurableProductIndexer\Indexer\Stock;
 
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\StateException;
+use Magento\Framework\Indexer\SaveHandler\Batch;
 use Magento\InventoryMultiDimensionalIndexerApi\Model\Alias;
 use Magento\InventoryMultiDimensionalIndexerApi\Model\IndexHandlerInterface;
 use Magento\InventoryMultiDimensionalIndexerApi\Model\IndexNameBuilder;
@@ -17,9 +18,15 @@ use Magento\InventoryMultiDimensionalIndexerApi\Model\IndexTableSwitcherInterfac
 use Magento\InventoryCatalogApi\Api\DefaultStockProviderInterface;
 use Magento\InventoryIndexer\Indexer\InventoryIndexer;
 use Magento\InventoryIndexer\Indexer\Stock\GetAllStockIds;
+use ArrayIterator;
 
 class StockIndexer
 {
+    /**
+     * Default batch size
+     */
+    private const BATCH_SIZE = 100;
+
     /**
      * @var GetAllStockIds
      */
@@ -56,6 +63,16 @@ class StockIndexer
     private $defaultStockProvider;
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
+     * @var Batch
+     */
+    private $batch;
+
+    /**
      * $indexStructure is reserved name for construct variable in index internal mechanism
      *
      * @param GetAllStockIds $getAllStockIds
@@ -65,6 +82,9 @@ class StockIndexer
      * @param IndexDataByStockIdProvider $indexDataByStockIdProvider
      * @param IndexTableSwitcherInterface $indexTableSwitcher
      * @param DefaultStockProviderInterface $defaultStockProvider
+     * @param Batch|null $batch
+     * @param int|null $batchSize
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList) All parameters are needed for backward compatibility
      */
     public function __construct(
         GetAllStockIds $getAllStockIds,
@@ -73,7 +93,10 @@ class StockIndexer
         IndexNameBuilder $indexNameBuilder,
         IndexDataByStockIdProvider $indexDataByStockIdProvider,
         IndexTableSwitcherInterface $indexTableSwitcher,
-        DefaultStockProviderInterface $defaultStockProvider
+        DefaultStockProviderInterface $defaultStockProvider,
+        ?PrepareIndexDataForClearingIndex $prepareIndexDataForClearingIndex = null,
+        ?Batch $batch = null,
+        ?int $batchSize = null
     ) {
         $this->getAllStockIds = $getAllStockIds;
         $this->indexStructure = $indexStructure;
@@ -82,6 +105,8 @@ class StockIndexer
         $this->indexDataByStockIdProvider = $indexDataByStockIdProvider;
         $this->indexTableSwitcher = $indexTableSwitcher;
         $this->defaultStockProvider = $defaultStockProvider;
+        $this->batch = $batch ?: ObjectManager::getInstance()->get(Batch::class);
+        $this->batchSize = $batchSize ?? self::BATCH_SIZE;
     }
 
     /**
@@ -128,17 +153,20 @@ class StockIndexer
 
             $indexData = $this->indexDataByStockIdProvider->execute((int)$stockId);
 
-            $this->indexHandler->cleanIndex(
-                $mainIndexName,
-                $indexData,
-                ResourceConnection::DEFAULT_CONNECTION
-            );
+            foreach ($this->batch->getItems($indexData, $this->batchSize) as $batchData) {
+                $batchIndexData = new ArrayIterator($batchData);
+                $this->indexHandler->cleanIndex(
+                    $mainIndexName,
+                    $this->prepareIndexDataForClearingIndex->execute($batchIndexData),
+                    ResourceConnection::DEFAULT_CONNECTION
+                );
 
-            $this->indexHandler->saveIndex(
-                $mainIndexName,
-                $indexData,
-                ResourceConnection::DEFAULT_CONNECTION
-            );
+                $this->indexHandler->saveIndex(
+                    $mainIndexName,
+                    $batchIndexData,
+                    ResourceConnection::DEFAULT_CONNECTION
+                );
+            }
         }
     }
 }
