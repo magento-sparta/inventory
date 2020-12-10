@@ -192,7 +192,7 @@ class ShowInconsistencies extends Command
         $maxPage = $this->retrieveMaxPage($bunchSize);
         $hasInconsistencies = false;
 
-        for ($page = 1; $page <= $maxPage; $page++) {
+        for ($page = 1; $page <= $maxPage + 1; $page++) {
             $startBunchExecution = microtime(true);
 
             $inconsistencies = $this->getSalableQuantityInconsistencies->execute($bunchSize, $page);
@@ -202,7 +202,9 @@ class ShowInconsistencies extends Command
                 $inconsistencies = $this->filterIncompleteOrders->execute($inconsistencies);
             }
 
-            $hasInconsistencies = !empty($inconsistencies);
+            if (!$hasInconsistencies) {
+                $hasInconsistencies = !empty($inconsistencies);
+            }
 
             if ($isRawOutput) {
                 $this->rawOutput($output, $inconsistencies);
