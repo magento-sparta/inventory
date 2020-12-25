@@ -17,4 +17,7 @@
         <plugin name="adapt_apply_stock_condition_to_select"
                 type="Magento\InventoryCatalogSearch\Plugin\Model\Search\FilterMapper\TermDropdownStrategy\AdaptApplyStockConditionToSelectPlugin"/>
     </type>
+    <type name="Magento\CatalogSearch\Model\Indexer\Fulltext\Action\DataProvider">
+        <plugin name="stock_filters_by_child_products" type="Magento\InventoryCatalogSearch\Plugin\CatalogSearch\Model\Indexer\ChildProductFilterByInventoryStockPlugin"/>
+    </type>
 </config>
