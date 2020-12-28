@@ -161,4 +161,8 @@
         <plugin name="inventoryUpdate" type="Magento\InventoryCatalog\Plugin\Catalog\Controller\Adminhtml\Product\Action\Attribute\Save\ProcessInventoryPlugin"/>
         <plugin name="massAction" disabled="true"/>
     </type>
+    <type name="Magento\CatalogInventory\Model\Source\Stock">
+        <plugin name="inventory_catalog_add_sort_by_stock_qty_to_collection"
+                type="Magento\InventoryCatalog\Plugin\CatalogInventory\Model\Source\StockPlugin"/>
+    </type>
 </config>
