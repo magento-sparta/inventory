@@ -81,6 +81,10 @@ class IsSalableWithReservationsCondition implements IsProductSalableForRequested
                     'message' => __('The requested sku is not assigned to given stock')
                 ])
             ];
+            \Magento\Framework\Debugger::getInstance()->log(__METHOD__, [
+                'sku' => $sku,
+                'stockId' => $stockId
+            ]);
             return $this->productSalableResultFactory->create(['errors' => $errors]);
         }
 
