@@ -46,13 +46,11 @@ class AddExpectedReservations
      * @param GetOrderItemsDataForOrdersInNotFinalState $getOrderItemsDataForOrderInNotFinalState
      */
     public function __construct(
-        GetOrdersInNotFinalState $getOrdersInNotFinalState,
         ReservationBuilderInterface $reservationBuilder,
         StockByWebsiteIdResolverInterface $stockByWebsiteIdResolver,
         SerializerInterface $serializer,
         GetOrderItemsDataForOrdersInNotFinalState $getOrderItemsDataForOrderInNotFinalState
     ) {
-        $this->getOrdersInNotFinalState = $getOrdersInNotFinalState;
         $this->reservationBuilder = $reservationBuilder;
         $this->stockByWebsiteIdResolver = $stockByWebsiteIdResolver;
         $this->serializer = $serializer;
