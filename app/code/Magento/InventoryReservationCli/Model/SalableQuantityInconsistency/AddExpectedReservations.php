@@ -39,7 +39,6 @@ class AddExpectedReservations
     private $getOrderItemsDataForOrderInNotFinalState;
 
     /**
-     * @param GetOrdersInNotFinalState $getOrdersInNotFinalState
      * @param ReservationBuilderInterface $reservationBuilder
      * @param StockByWebsiteIdResolverInterface $stockByWebsiteIdResolver
      * @param SerializerInterface $serializer
