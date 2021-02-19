@@ -29,4 +29,14 @@
     <type name="Magento\InventoryApi\Api\StockRepositoryInterface">
         <plugin name="add_notice_for_unassigned_sales_channels" type="Magento\InventorySalesAdminUi\Plugin\InventoryApi\StockRepository\AddNoticeForUnassignedSalesChannels" sortOrder="10"/>
     </type>
+    <virtualType name="GetProductSalableQtyAdminUi" type="Magento\InventorySales\Model\GetProductSalableQty">
+        <arguments>
+            <argument name="getStockItemData" xsi:type="object">Magento\InventorySalesAdminUi\Model\ResourceModel\GetStockItemData</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku">
+        <arguments>
+            <argument name="getProductSalableQty" xsi:type="object">GetProductSalableQtyAdminUi</argument>
+        </arguments>
+    </type>
 </config>
