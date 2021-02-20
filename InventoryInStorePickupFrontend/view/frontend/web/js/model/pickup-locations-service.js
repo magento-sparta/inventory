@@ -52,10 +52,7 @@ define([
 
             return storage
                 .get(serviceUrl, {}, false)
-                .then(function (result) {
-                    var addresses = result.items || [],
-                        address = addresses[0] || {};
-
+                .then(function (address) {
                     return this.formatAddress(address);
                 }.bind(this))
                 .fail(function (response) {
