@@ -54,14 +54,12 @@ class GetGeoNamesDataByAddress
         $tableName = $this->resourceConnection->getTableName('inventory_geoname');
 
         $qry = $connection->select()->from($tableName)
-            ->where('country_code = ?', $address->getCountry())
-            ->where('postcode = ?', $address->getPostcode())
-            ->limit(1);
+            ->where('postcode = ?', $address->getPostcode());
 
-        $result[] = $connection->fetchRow($qry);
+        $result = $connection->fetchAll($qry);
+
         if (!reset($result) && $address->getCity()) {
             $qry = $connection->select()->from($tableName)
-                ->where('country_code = ?', $address->getCountry())
                 ->where('city like ?', $address->getCity() . '%');
 
             $result = $connection->fetchAll($qry);
@@ -69,7 +67,6 @@ class GetGeoNamesDataByAddress
 
         if (!$result || !reset($result)) {
             $qry = $connection->select()->from($tableName)
-                ->where('country_code = ?', $address->getCountry())
                 ->where('region = ?', $address->getRegion());
 
             $result = $connection->fetchAll($qry);

@@ -37,11 +37,7 @@ class CityParser implements ParserInterface
      */
     public function execute(string $searchTerm, DataObject $dataObject): void
     {
-        if (empty($dataObject->getData(self::POSTCODE))) {
-            $dataObject->setData(self::CITY, $this->getSearchQuery($searchTerm));
-        } else {
-            $dataObject->setData(self::CITY, '');
-        }
+        $dataObject->setData(self::CITY, $this->getSearchQuery($searchTerm));
     }
 
     /**
